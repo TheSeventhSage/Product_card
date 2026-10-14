@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Product Card Exercise</title>
+    <!-- Import Tailwind CSS for rapid styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Import Google Fonts (Inter) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Import Phosphor Icons for UI elements -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: '#4F46E5', // Indigo 600
+                        primaryHover: '#4338CA', // Indigo 700
+                    },
+                    animation: {
+                        'pulse-fast': 'pulse 1s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom CSS for elements that are tricky with utility classes alone */
+        body {
+            background-color: #F3F4F6; /* Gray 100 */
+        }
+        
+        /* Smooth transition for the product image */
+        .product-image {
+            transition: transform 0.5s ease;
+        }
+        
+        .product-card:hover .product-image {
+            transform: scale(1.05);
+        }
+
+        /* Hide scrollbar for the thumbnail container but keep functionality */
+        .thumbnail-container::-webkit-scrollbar {
+            display: none;
+        }
+        .thumbnail-container {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Notification toast animation */
+        @keyframes slideInUp {
+            from { transform: translateY(100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .toast-enter {
+            animation: slideInUp 0.3s ease-out forwards;
+        }
+        .toast-exit {
+            animation: fadeOut 0.3s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 antialiased text-gray-900">
+
+    <!-- 
+        EXERCISE INSTRUCTIONS FOR STUDENTS:
+        1. Review the HTML structure and Tailwind classes.
+        2. Understand how Flexbox and Grid are used for layout.
+        3. Examine the JavaScript logic for interactivity.
+        4. Tasks:
+           - Add a new color option (e.g., 'Green') and handle its logic.
+           - Implement a 'Quantity' selector (+ / - buttons).
+           - Update the total price dynamically based on quantity.
+    -->
+    <div class="product-card bg-white rounded-2xl shadow-xl overflow-hidden max-w-4xl w-full flex flex-col md:flex-row relative">
+        
+        <!-- Left Side: Image Gallery -->
+        <div class="md:w-1/2 bg-gray-50 p-6 flex flex-col items-center justify-center relative overflow-hidden group">
+            
+            <!-- Favorite Button -->
+            <button id="favoriteBtn" class="absolute top-4 right-4 z-10 p-2 rounded-full bg-white shadow-md text-gray-400 hover:text-red-500 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2" aria-label="Add to favorites">
+                <i class="ph ph-heart text-2xl" id="favoriteIcon"></i>
+            </button>
+
+            <!-- Main Product Image -->
+            <div class="relative w-full aspect-square flex items-center justify-center mb-6">
+                <!-- Using a placeholder, students can replace with a real image -->
+                <img id="mainImage" src="https://placehold.co/500x500/1f2937/ffffff?text=Premium+Headphones\n(Space+Gray)" alt="Premium Wireless Headphones" class="product-image max-w-[80%] max-h-[80%] object-contain drop-shadow-2xl">
+            </div>
+
+            <!-- Thumbnail Selection -->
+            <div class="thumbnail-container flex gap-4 overflow-x-auto w-full pb-2 px-2 snap-x">
+                <button class="thumb-btn flex-shrink-0 w-20 h-20 rounded-xl border-2 border-primary overflow-hidden snap-center focus:outline-none" data-image="https://placehold.co/500x500/1f2937/ffffff?text=Premium+Headphones\n(Space+Gray)" data-color="Space Gray">
+                    <img src="https://placehold.co/150x150/1f2937/ffffff?text=Gray" alt="Gray view" class="w-full h-full object-cover">
+                </button>
+                <button class="thumb-btn flex-shrink-0 w-20 h-20 rounded-xl border-2 border-transparent hover:border-gray-300 overflow-hidden snap-center focus:outline-none" data-image="https://placehold.co/500x500/e5e7eb/1f2937?text=Premium+Headphones\n(Silver)" data-color="Silver">
+                    <img src="https://placehold.co/150x150/e5e7eb/1f2937?text=Silver" alt="Silver view" class="w-full h-full object-cover">
+                </button>
+                 <button class="thumb-btn flex-shrink-0 w-20 h-20 rounded-xl border-2 border-transparent hover:border-gray-300 overflow-hidden snap-center focus:outline-none" data-image="https://placehold.co/500x500/000000/ffffff?text=Premium+Headphones\n(Midnight+Black)" data-color="Midnight Black">
+                    <img src="https://placehold.co/150x150/000000/ffffff?text=Black" alt="Black view" class="w-full h-full object-cover">
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Side: Product Details -->
+        <div class="md:w-1/2 p-8 md:p-10 flex flex-col justify-between">
+            <div>
+                <div class="flex justify-between items-start mb-2">
+                    <div>
+                        <span class="text-sm font-semibold text-primary uppercase tracking-wider">Audio Equipment</span>
+                        <h1 class="text-3xl font-bold text-gray-900 mt-1 mb-2">Aura Studio Pro</h1>
+                    </div>
+                    <!-- Status Badge -->
+                    <span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse-fast"></span>
+                        In Stock
+                    </span>
+                </div>
+                
+                <!-- Ratings -->
+                <div class="flex items-center gap-2 mb-6">
+                    <div class="flex text-yellow-400 text-lg">
+                        <i class="ph-fill ph-star"></i>
+                        <i class="ph-fill ph-star"></i>
+                        <i class="ph-fill ph-star"></i>
+                        <i class="ph-fill ph-star"></i>
+                        <i class="ph-fill ph-star-half"></i>
+                    </div>
+                    <span class="text-sm text-gray-500 hover:text-gray-700 cursor-pointer underline decoration-dotted transition-colors">(128 reviews)</span>
+                </div>
+
+                <!-- Price -->
+                <div class="mb-6">
+                    <span class="text-4xl font-bold text-gray-900">$299.00</span>
+                    <span class="text-sm text-gray-500 line-through ml-2">$349.00</span>
+                </div>
+
+                <p class="text-gray-600 mb-8 leading-relaxed">
+                    Experience pure, uninterrupted sound with industry-leading active noise cancellation. Features plush memory foam earcups and up to 40 hours of battery life for all-day comfort.
+                </p>
+
+                <!-- Color Selection -->
+                <div class="mb-8">
+                    <h3 class="text-sm font-medium text-gray-900 mb-3 flex items-center justify-between">
+                        Color
+                        <span id="selectedColorText" class="text-gray-500 font-normal">Space Gray</span>
+                    </h3>
+                    <div class="flex items-center gap-3">
+                        <button class="color-btn w-8 h-8 rounded-full bg-gray-800 focus:outline-none ring-2 ring-offset-2 ring-gray-800 transition-all" data-color-name="Space Gray" aria-label="Select Space Gray"></button>
+                        <button class="color-btn w-8 h-8 rounded-full bg-gray-200 focus:outline-none ring-0 hover:ring-2 ring-offset-2 ring-gray-300 transition-all" data-color-name="Silver" aria-label="Select Silver"></button>
+                        <button class="color-btn w-8 h-8 rounded-full bg-black focus:outline-none ring-0 hover:ring-2 ring-offset-2 ring-gray-500 transition-all" data-color-name="Midnight Black" aria-label="Select Midnight Black"></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="mt-auto pt-6 border-t border-gray-100 flex gap-4">
+                <button id="addToCartBtn" class="flex-1 bg-primary hover:bg-primaryHover text-white font-semibold py-3 px-6 rounded-xl shadow-lg shadow-indigo-200 transition-all duration-200 flex items-center justify-center gap-2 transform active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2">
+                    <i class="ph ph-shopping-cart-simple text-xl"></i>
+                    Add to Cart
+                </button>
+            </div>
+            
+            <!-- Features list -->
+            <ul class="mt-6 flex flex-col gap-2 text-sm text-gray-500">
+                <li class="flex items-center gap-2"><i class="ph ph-truck text-lg text-gray-400"></i> Free shipping worldwide</li>
+                <li class="flex items-center gap-2"><i class="ph ph-arrow-u-up-left text-lg text-gray-400"></i> 30-day return policy</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Notification Toast Container -->
+    <div id="toastContainer" class="fixed bottom-4 right-4 flex flex-col gap-2 z-50 pointer-events-none">
+        <!-- Toasts will be injected here via JS -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // DOM Elements
+            const mainImage = document.getElementById('mainImage');
+            const thumbBtns = document.querySelectorAll('.thumb-btn');
+            const colorBtns = document.querySelectorAll('.color-btn');
+            const selectedColorText = document.getElementById('selectedColorText');
+            const favoriteBtn = document.getElementById('favoriteBtn');
+            const favoriteIcon = document.getElementById('favoriteIcon');
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            const toastContainer = document.getElementById('toastContainer');
+
+            // State
+            let isFavorited = false;
+            let currentColor = 'Space Gray';
+
+            // --- Image Gallery Logic ---
+            
+            // Function to update main image and active thumbnail
+            const updateImage = (imageUrl, colorName, clickedThumbBtn) => {
+                // Fade out slightly
+                mainImage.style.opacity = '0.5';
+                
+                setTimeout(() => {
+                    mainImage.src = imageUrl;
+                    mainImage.style.opacity = '1';
+                }, 150);
+
+                // Update thumbnail styling
+                thumbBtns.forEach(btn => {
+                    btn.classList.remove('border-primary');
+                    btn.classList.add('border-transparent');
+                });
+                if(clickedThumbBtn) {
+                     clickedThumbBtn.classList.remove('border-transparent');
+                     clickedThumbBtn.classList.add('border-primary');
+                }
+
+                // Sync color text if needed
+                if(colorName) {
+                    updateColorSelection(colorName, false);
+                }
+            };
+
+            // Thumbnail click events
+            thumbBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const imageUrl = this.getAttribute('data-image');
+                    const colorName = this.getAttribute('data-color');
+                    updateImage(imageUrl, colorName, this);
+                });
+            });
+
+
+            // --- Color Selection Logic ---
+
+            const updateColorSelection = (colorName, updateImageAlso = true) => {
+                currentColor = colorName;
+                selectedColorText.textContent = colorName;
+
+                // Update styling for color buttons
+                colorBtns.forEach(btn => {
+                    if (btn.getAttribute('data-color-name') === colorName) {
+                        // Apply active ring styles based on button color
+                        const ringColor = btn.classList.contains('bg-gray-200') ? 'ring-gray-300' : 
+                                          btn.classList.contains('bg-black') ? 'ring-gray-500' : 'ring-gray-800';
+                        
+                        btn.classList.remove('ring-0', 'hover:ring-2');
+                        btn.classList.add('ring-2', ringColor);
+                    } else {
+                        // Remove active styles
+                        btn.className = btn.className.replace(/ring-gray-\d+/g, '');
+                        btn.classList.remove('ring-2');
+                        btn.classList.add('ring-0', 'hover:ring-2', 'ring-gray-300'); // Default hover
+                    }
+                });
+
+                // Find corresponding thumbnail and update image if requested
+                if (updateImageAlso) {
+                    const matchingThumb = Array.from(thumbBtns).find(btn => btn.getAttribute('data-color') === colorName);
+                    if (matchingThumb) {
+                        updateImage(matchingThumb.getAttribute('data-image'), null, matchingThumb);
+                    }
+                }
+            };
+
+            // Color button click events
+            colorBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const colorName = this.getAttribute('data-color-name');
+                    updateColorSelection(colorName);
+                });
+            });
+
+
+            // --- Interactions ---
+
+            // Favorite Button Logic
+            favoriteBtn.addEventListener('click', () => {
+                isFavorited = !isFavorited;
+                
+                if (isFavorited) {
+                    favoriteIcon.classList.remove('ph');
+                    favoriteIcon.classList.add('ph-fill', 'text-red-500');
+                    favoriteBtn.classList.remove('text-gray-400');
+                    
+                    // Small pop animation
+                    favoriteIcon.style.transform = 'scale(1.2)';
+                    setTimeout(() => favoriteIcon.style.transform = 'scale(1)', 200);
+                    
+                    showToast('Added to your favorites!', 'success');
+                } else {
+                    favoriteIcon.classList.remove('ph-fill', 'text-red-500');
+                    favoriteIcon.classList.add('ph');
+                    favoriteBtn.classList.add('text-gray-400');
+                    showToast('Removed from favorites.', 'info');
+                }
+            });
+
+            // Add to Cart Logic
+            addToCartBtn.addEventListener('click', () => {
+                // Change button state temporarily to show action
+                const originalText = addToCartBtn.innerHTML;
+                addToCartBtn.innerHTML = '<i class="ph-fill ph-check-circle text-xl"></i> Added';
+                addToCartBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'shadow-green-200');
+                addToCartBtn.classList.remove('bg-primary', 'hover:bg-primaryHover', 'shadow-indigo-200');
+
+                showToast(`Added 1x Aura Studio Pro (${currentColor}) to cart`, 'success');
+
+                setTimeout(() => {
+                    addToCartBtn.innerHTML = originalText;
+                    addToCartBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'shadow-green-200');
+                    addToCartBtn.classList.add('bg-primary', 'hover:bg-primaryHover', 'shadow-indigo-200');
+                }, 2000);
+            });
+
+
+            // --- Utility: Toast Notification System ---
+            
+            function showToast(message, type = 'info') {
+                const toast = document.createElement('div');
+                
+                // Base styles
+                let styles = "toast-enter pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg text-sm font-medium text-white max-w-sm w-full";
+                let icon = "";
+
+                if (type === 'success') {
+                    styles += " bg-gray-900";
+                    icon = '<i class="ph-fill ph-check-circle text-green-400 text-lg"></i>';
+                } else {
+                    styles += " bg-gray-800";
+                    icon = '<i class="ph-fill ph-info text-blue-400 text-lg"></i>';
+                }
+
+                toast.className = styles;
+                toast.innerHTML = `
+                    ${icon}
+                    <span>${message}</span>
+                `;
+
+                toastContainer.appendChild(toast);
+
+                // Remove toast after 3 seconds
+                setTimeout(() => {
+                    toast.classList.replace('toast-enter', 'toast-exit');
+                    // Wait for animation to finish before removing from DOM
+                    setTimeout(() => {
+                        if(toastContainer.contains(toast)) {
+                            toastContainer.removeChild(toast);
+                        }
+                    }, 300);
+                }, 3000);
+            }
+        });
+    </script>
+</body>
+</html>
